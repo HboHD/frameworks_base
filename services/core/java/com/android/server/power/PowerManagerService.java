@@ -514,6 +514,8 @@ public final class PowerManagerService extends SystemService
                 Process.THREAD_PRIORITY_DISPLAY, false /*allowIo*/);
         mHandlerThread.start();
         mHandler = new PowerManagerHandler(mHandlerThread.getLooper());
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+        mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         synchronized (mLock) {
             mWakeLockSuspendBlocker = createSuspendBlockerLocked("PowerManagerService.WakeLocks");
@@ -596,10 +598,6 @@ public final class PowerManagerService extends SystemService
             mDisplayManagerInternal.initPowerManagement(
                     mDisplayPowerCallbacks, mHandler, sensorManager);
 
-            // Initialize proximity sensor
-            mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-            mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
             // Register for broadcasts from other components of the system.
             IntentFilter filter = new IntentFilter();
             filter.addAction(Intent.ACTION_BATTERY_CHANGED);
@@ -663,6 +661,8 @@ public final class PowerManagerService extends SystemService
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.DOUBLE_TAP_TO_WAKE),
                     false, mSettingsObserver, UserHandle.USER_ALL);
+<<<<<<< HEAD
+=======
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.BUTTON_BRIGHTNESS),
                     false, mSettingsObserver, UserHandle.USER_ALL);
@@ -676,6 +676,7 @@ public final class PowerManagerService extends SystemService
                     Settings.System.PROXIMITY_ON_WAKE),
                     false, mSettingsObserver, UserHandle.USER_ALL);
 
+>>>>>>> 8cbb56a... ProximityWake : Add support for checking proximity when waking device
             // Go.
             readConfigurationLocked();
             updateSettingsLocked();
@@ -3311,6 +3312,7 @@ public final class PowerManagerService extends SystemService
         }
 
         @Override // Binder call
+        public void wakeUp(long eventTime, String reason, String opPackageName) {
         public void setKeyboardVisibility(boolean visible) {
             synchronized (mLock) {
                 if (DEBUG_SPEW) {
