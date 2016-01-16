@@ -492,6 +492,17 @@ public class StatusBarIconController implements Tunable {
         mTransitionPending = false;
     }
 
+    public LinearLayout getStatusIcons() {
+        return mStatusIcons;
+    }
+
+    public void cleanup() {
+        TunerService.get(mContext).removeTunable(this);
+        if (mSignalCluster != null) {
+            mSignalCluster.setSecurityController(null);
+        }
+    }
+
     public static ArraySet<String> getIconBlacklist(String blackListStr) {
         ArraySet<String> ret = new ArraySet<String>();
         if (blackListStr != null) {
