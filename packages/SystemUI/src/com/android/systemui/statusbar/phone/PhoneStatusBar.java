@@ -3363,6 +3363,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mUiMode != newConfig.uiMode) {
             mUiMode = newConfig.uiMode;
             recreateStatusBar();
+            mNavigationBarView.updateResources();
         }
     }
 
