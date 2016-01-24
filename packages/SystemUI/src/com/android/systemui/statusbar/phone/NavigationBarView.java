@@ -389,10 +389,6 @@ public class NavigationBarView extends LinearLayout {
         return (ViewGroup) mCurrentView.findViewById(R.id.nav_buttons);
     }
 
-    public void updateResources() {
-        getIcons(getContext().getResources());
-    }
-
     private void getIcons(Resources res) {
         mBackIcon = res.getDrawable(R.drawable.ic_sysbar_back);
         mBackLandIcon = mBackIcon;

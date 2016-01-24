@@ -39,6 +39,7 @@ import android.widget.ImageView;
 
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.systemui.R;
+import com.android.systemui.cm.UserContentObserver;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class StatusBarIconView extends AnimatedImageView {
     private StatusBarIcon mIcon;
     @ViewDebug.ExportedProperty private String mSlot;
     private Drawable mNumberBackground;
-    private Paint mNumberPaint;
+    private Paint mNumberPain;
     private int mNumberX;
     private int mNumberY;
     private String mNumberText;
@@ -67,7 +68,15 @@ public class StatusBarIconView extends AnimatedImageView {
         super(context);
         final Resources res = context.getResources();
         mBlocked = blocked;
+        final float densityMultiplier = res.getDisplayMetrics().density;
+        final float scaledPx = 8 * densityMultiplier;
         mSlot = slot;
+        mNumberPain = new Paint();
+        mNumberPain.setTextAlign(Paint.Align.CENTER);
+        mNumberPain.setColor(context.getColor(R.drawable.notification_number_text_color));
+        mNumberPain.setAntiAlias(true);
+        mNumberPain.setTypeface(Typeface.DEFAULT_BOLD);
+        mNumberPain.setTextSize(scaledPx);
         setNotification(notification);
 
         mObserver = GlobalSettingsObserver.getInstance(context);
@@ -155,15 +164,6 @@ public class StatusBarIconView extends AnimatedImageView {
         if (!numberEquals || force) {
             if (icon.number > 1 && mShowNotificationCount) {
                 if (mNumberBackground == null) {
-                    final Resources res = mContext.getResources();
-                    final float densityMultiplier = res.getDisplayMetrics().density;
-                    final float scaledPx = 8 * densityMultiplier;
-                    mNumberPaint = new Paint();
-                    mNumberPaint.setTextAlign(Paint.Align.CENTER);
-                    mNumberPaint.setColor(res.getColor(R.drawable.notification_number_text_color));
-                    mNumberPaint.setAntiAlias(true);
-                    mNumberPaint.setTypeface(Typeface.DEFAULT_BOLD);
-                    mNumberPaint.setTextSize(scaledPx);
                     mNumberBackground = getContext().getResources().getDrawable(
                             R.drawable.ic_notification_overlay);
                 }
@@ -171,7 +171,6 @@ public class StatusBarIconView extends AnimatedImageView {
             } else {
                 mNumberBackground = null;
                 mNumberText = null;
-                mNumberPaint = null;
             }
             invalidate();
         }
@@ -232,6 +231,10 @@ public class StatusBarIconView extends AnimatedImageView {
         }
     }
 
+    public String getStatusBarSlot() {
+        return mSlot;
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -252,7 +255,7 @@ public class StatusBarIconView extends AnimatedImageView {
 
         if (mNumberBackground != null) {
             mNumberBackground.draw(canvas);
-            canvas.drawText(mNumberText, mNumberX, mNumberY, mNumberPaint);
+            canvas.drawText(mNumberText, mNumberX, mNumberY, mNumberPain);
         }
     }
 
@@ -297,7 +300,7 @@ public class StatusBarIconView extends AnimatedImageView {
         final int w = getWidth();
         final int h = getHeight();
         final Rect r = new Rect();
-        mNumberPaint.getTextBounds(str, 0, str.length(), r);
+        mNumberPain.getTextBounds(str, 0, str.length(), r);
         final int tw = r.right - r.left;
         final int th = r.bottom - r.top;
         mNumberBackground.getPadding(r);
@@ -332,7 +335,7 @@ public class StatusBarIconView extends AnimatedImageView {
         return mSlot;
     }
 
-    static class GlobalSettingsObserver extends ContentObserver {
+    static class GlobalSettingsObserver extends UserContentObserver {
         private static GlobalSettingsObserver sInstance;
         private ArrayList<StatusBarIconView> mIconViews = new ArrayList<StatusBarIconView>();
         private Context mContext;
@@ -363,18 +366,24 @@ public class StatusBarIconView extends AnimatedImageView {
             }
         }
 
-        void observe() {
+        @Override
+        protected void observe() {
+            super.observe();
+
             mContext.getContentResolver().registerContentObserver(
                     Settings.System.getUriFor(Settings.System.STATUS_BAR_NOTIF_COUNT),
                     false, this);
         }
 
-        void unobserve() {
+        @Override
+        protected void unobserve() {
+            super.unobserve();
+
             mContext.getContentResolver().unregisterContentObserver(this);
         }
 
         @Override
-        public void onChange(boolean selfChange) {
+        public void update() {
             boolean showIconCount = Settings.System.getIntForUser(mContext.getContentResolver(),
                     Settings.System.STATUS_BAR_NOTIF_COUNT, 0, UserHandle.USER_CURRENT) == 1;
             for (StatusBarIconView sbiv : mIconViews) {
@@ -384,4 +393,3 @@ public class StatusBarIconView extends AnimatedImageView {
         }
     }
 }
-

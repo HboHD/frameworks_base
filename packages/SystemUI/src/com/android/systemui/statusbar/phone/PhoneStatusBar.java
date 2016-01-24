@@ -153,6 +153,7 @@ import com.android.systemui.statusbar.NotificationOverflowContainer;
 import com.android.systemui.statusbar.ScrimView;
 import com.android.systemui.statusbar.SignalClusterView;
 import com.android.systemui.statusbar.SpeedBumpView;
+import com.android.systemui.statusbar.StatusBarIconView;
 import com.android.systemui.statusbar.StatusBarState;
 import com.android.systemui.statusbar.phone.UnlockMethodCache.OnUnlockMethodChangedListener;
 import com.android.systemui.statusbar.policy.AccessibilityController;
@@ -168,8 +169,8 @@ import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.statusbar.policy.KeyguardMonitor;
 import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
 import com.android.systemui.statusbar.policy.LocationControllerImpl;
-import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NetworkControllerImpl;
+import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NextAlarmController;
 import com.android.systemui.statusbar.policy.PreviewInflater;
 import com.android.systemui.statusbar.policy.RotationLockControllerImpl;
@@ -3428,13 +3429,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mStatusBarWindow.removeContent(mStatusBarWindowContent);
         mStatusBarWindow.clearDisappearingChildren();
 
-        RankingMap rankingMap = mNotificationData.getRankingMap();
         // extract icons from the soon-to-be recreated viewgroup.
-        int nIcons = mStatusIcons != null ? mStatusIcons.getChildCount() : 0;
+        ViewGroup statusIcons = mIconController.getStatusIcons();
+        int nIcons = statusIcons != null ? statusIcons.getChildCount() : 0;
         ArrayList<StatusBarIcon> icons = new ArrayList<StatusBarIcon>(nIcons);
         ArrayList<String> iconSlots = new ArrayList<String>(nIcons);
         for (int i = 0; i < nIcons; i++) {
-            StatusBarIconView iconView = (StatusBarIconView)mStatusIcons.getChildAt(i);
+            StatusBarIconView iconView = (StatusBarIconView) statusIcons.getChildAt(i);
             icons.add(iconView.getStatusBarIcon());
             iconSlots.add(iconView.getStatusBarSlot());
         }
@@ -3442,6 +3443,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         removeAllViews(mStatusBarWindowContent);
 
         // extract notifications.
+        RankingMap rankingMap = mNotificationData.getRankingMap();
         int nNotifs = mNotificationData.size();
         ArrayList<Pair<String, StatusBarNotification>> notifications =
                 new ArrayList<Pair<String, StatusBarNotification>>(nNotifs);
@@ -3533,7 +3535,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mQSPanel != null) {
             mQSPanel.updateResources();
         }
-        //recreateStatusBar();
 
         loadDimens();
 
@@ -4864,3 +4865,4 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
 }
+
