@@ -80,13 +80,27 @@ public class CellularTile extends QSTile<QSTile.SignalState> {
         return new SignalTileView(context);
     }
 
-    @Override
+	@Override
     protected void handleClick() {
+        boolean enabled = mDataController.isMobileDataEnabled();
         MetricsLogger.action(mContext, getMetricsCategory());
+        if (mDataController.isMobileDataSupported()) {
+            if (!enabled) {
+                mDataController.setMobileDataEnabled(true);
+            } else {
+                mDataController.setMobileDataEnabled(false);
+            }
+        } else {
+            mHost.startActivityDismissingKeyguard(MOBILE_NETWORK_SETTINGS);
+        }
+    }
+
+    @Override
+    protected void handleSecondaryClick() {
         if (mDataController.isMobileDataSupported()) {
             showDetail(true);
         } else {
-            mHost.startActivityDismissingKeyguard(CELLULAR_SETTINGS);
+            mHost.startActivityDismissingKeyguard(MOBILE_NETWORK_SETTINGS);
         }
     }
 
