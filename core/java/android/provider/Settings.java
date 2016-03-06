@@ -3162,6 +3162,16 @@ public final class Settings {
         public static final Validator VIBRATE_WHEN_RINGING_VALIDATOR = sBooleanValidator;
 
         /**
+         * Whether the incoming call should be shown as intrusive fullscreen pop-up.
+         * The value is boolean (1 or 0).
+         *    0 - Non-intrusive
+         *    1 - Fullscreen
+         *
+         * @hide
+         */
+        public static final String USE_INTRUSIVE_CALL = "use_intrusive_call";
+
+        /**
          * Whether the audible DTMF tones are played by the dialer when dialing. The value is
          * boolean (1 or 0).
          */
@@ -3847,6 +3857,15 @@ public final class Settings {
          */
         public static final String APP_SWITCH_WAKE_SCREEN = "app_switch_wake_screen";
 
+        /**
+         * Whether to swap app switch button with back button, the value is boolean.
+         * @hide
+         */
+        public static final String APP_SWITCH_SWAP_BUTTONS = "app_switch_swap_buttons";
+
+        /** @hide */
+        public static final Validator APP_SWITCH_SWAP_BUTTONS_VALIDATOR =
+                sBooleanValidator;
 
         /**
          * Volume rocker wake
@@ -4002,6 +4021,12 @@ public final class Settings {
          * @hide
          */
         public static final String STATUSBAR_BATTERY_BAR_ANIMATE = "statusbar_battery_bar_animate";
+
+        /**
+         * Whether to show switches for wifi/cell/bt in the settings dashboard
+         * @hide
+         */
+        public static final String DASHBOARD_SWITCHES = "dashboard_switches";
 
         /**
          * Toast icon
@@ -4700,6 +4725,19 @@ public final class Settings {
          * @hide
          */
         public static final String CLOCK_USE_SECOND = "clock_use_second";
+
+        /**
+         * Whether to display dashboard dividers
+         * @hide
+         */
+        public static final String DASHBOARD_TILEVIEW_DIVIDERS = "dashboard_tileview_dividers";
+
+        /**
+         * Whether to display set of animations when prompting the power menu
+         *
+         * @hide
+         */
+        public static final String POWER_MENU_ANIMATIONS = "power_menu_animations";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
