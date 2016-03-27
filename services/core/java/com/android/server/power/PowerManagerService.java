@@ -661,22 +661,7 @@ public final class PowerManagerService extends SystemService
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.DOUBLE_TAP_TO_WAKE),
                     false, mSettingsObserver, UserHandle.USER_ALL);
-<<<<<<< HEAD
-=======
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.BUTTON_BRIGHTNESS),
-                    false, mSettingsObserver, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.KEYBOARD_BRIGHTNESS),
-                    false, mSettingsObserver, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.BUTTON_BACKLIGHT_TIMEOUT),
-                    false, mSettingsObserver, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PROXIMITY_ON_WAKE),
-                    false, mSettingsObserver, UserHandle.USER_ALL);
 
->>>>>>> 8cbb56a... ProximityWake : Add support for checking proximity when waking device
             // Go.
             readConfigurationLocked();
             updateSettingsLocked();
@@ -1647,28 +1632,10 @@ public final class PowerManagerService extends SystemService
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
-                        int buttonBrightness, keyboardBrightness;
-                        if (mButtonBrightnessOverrideFromWindowManager >= 0) {
-                            buttonBrightness = mButtonBrightnessOverrideFromWindowManager;
-                            keyboardBrightness = mButtonBrightnessOverrideFromWindowManager;
-                        } else {
-                            buttonBrightness = mButtonBrightness;
-                            keyboardBrightness = mKeyboardBrightness;
-                        }
-                            mKeyboardLight.setBrightness(mKeyboardVisible ?
-                                    keyboardBrightness : 0);
-                            if (mButtonTimeout != 0
-                                    && now > mLastUserActivityTime + mButtonTimeout) {
-                                mButtonsLight.setBrightness(0);
-                            } else {
-                                if (!mProximityPositive) {
-                                    mButtonsLight.setBrightness(buttonBrightness);
-                                    if (buttonBrightness != 0 && mButtonTimeout != 0) {
-                                        nextTimeout = now + mButtonTimeout;
-                                }
-                            }
-                        }
                         mUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
+                        if (mWakefulness == WAKEFULNESS_AWAKE) {
+                            int buttonBrightness, keyboardBrightness;
+                        }
                     } else {
                         nextTimeout = mLastUserActivityTime + screenOffTimeout;
                         if (now < nextTimeout) {
@@ -3308,42 +3275,6 @@ public final class PowerManagerService extends SystemService
                 userActivityInternal(eventTime, event, flags, uid);
             } finally {
                 Binder.restoreCallingIdentity(ident);
-            }
-        }
-
-        @Override // Binder call
-        public void setKeyboardVisibility(boolean visible) {
-            synchronized (mLock) {
-                if (DEBUG_SPEW) {
-                    Slog.d(TAG, "setKeyboardVisibility: " + visible);
-                }
-                if (mKeyboardVisible != visible) {
-                    mKeyboardVisible = visible;
-                    if (!visible) {
-                        // If hiding keyboard, turn off leds
-                        setKeyboardLight(false, 1);
-                        setKeyboardLight(false, 2);
-                    }
-                    synchronized (mLock) {
-                        mDirty |= DIRTY_USER_ACTIVITY;
-                        updatePowerStateLocked();
-                    }
-                }
-            }
-        }
-
-        @Override // Binder call
-        public void setKeyboardLight(boolean on, int key) {
-            if (key == 1) {
-                if (on)
-                    mCapsLight.setColor(0x00ffffff);
-                else
-                    mCapsLight.turnOff();
-            } else if (key == 2) {
-                if (on)
-                    mFnLight.setColor(0x00ffffff);
-                else
-                    mFnLight.turnOff();
             }
         }
 
