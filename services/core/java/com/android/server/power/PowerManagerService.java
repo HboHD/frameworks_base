@@ -3312,7 +3312,6 @@ public final class PowerManagerService extends SystemService
         }
 
         @Override // Binder call
-        public void wakeUp(long eventTime, String reason, String opPackageName) {
         public void setKeyboardVisibility(boolean visible) {
             synchronized (mLock) {
                 if (DEBUG_SPEW) {
