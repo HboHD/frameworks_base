@@ -691,6 +691,7 @@ public class AudioService extends IAudioService.Stub {
         intentFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
 
         intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+        intentFilter.addAction(Intent.ACTION_SHUTDOWN);
         // TODO merge orientation and rotation
         mMonitorOrientation = SystemProperties.getBoolean("ro.audio.monitorOrientation", false);
         if (mMonitorOrientation) {
@@ -3462,13 +3463,15 @@ public class AudioService extends IAudioService.Stub {
             } else if (direction == AudioManager.ADJUST_RAISE
                     || direction == AudioManager.ADJUST_TOGGLE_MUTE
                     || direction == AudioManager.ADJUST_UNMUTE) {
-                if (!mVolumePolicy.volumeUpToExitSilent) {
-                    result |= AudioManager.FLAG_SHOW_SILENT_HINT;
-                } else {
-                    // from vibrate we always go back to normal
-                    // no need to go via vibrate again
+                if (mVolumePolicy.volumeUpToExitSilent && mRingerModeDelegate.canVolumeUpExitSilent()) {
+                     // go straight back to normal.
                     ringerMode = RINGER_MODE_NORMAL;
+                } else {
+                    result |= AudioManager.FLAG_SHOW_SILENT_HINT;
                 }
+            } else if (direction == AudioManager.ADJUST_LOWER) {
+                // volume down when already in silent
+                mRingerModeDelegate.onVolumeDownInSilent(mVolumePolicy);
             }
             result &= ~FLAG_ADJUST_VOLUME;
             break;
@@ -5355,6 +5358,8 @@ public class AudioService extends IAudioService.Stub {
                 int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
                 UserManagerService.getInstance().setSystemControlledUserRestriction(
                         UserManager.DISALLOW_RECORD_AUDIO, false, userId);
+            } else if (action.equals(Intent.ACTION_SHUTDOWN)) {
+                AudioSystem.setParameters("dev_shutdown=true");
             }
         }
     } // end class AudioServiceBroadcastReceiver
