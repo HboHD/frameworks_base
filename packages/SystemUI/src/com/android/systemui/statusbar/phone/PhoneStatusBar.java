@@ -115,7 +115,7 @@ import android.widget.TextView;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.StatusBarIcon;
-import com.android.internal.util.du.DUPackageMonitor;
+import com.android.internal.util.broken.DUPackageMonitor;
 import com.android.internal.util.du.WeatherControllerImpl;
 import com.android.keyguard.KeyguardHostView.OnDismissAction;
 import com.android.keyguard.KeyguardUpdateMonitor;
